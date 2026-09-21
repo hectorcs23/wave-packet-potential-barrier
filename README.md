@@ -69,7 +69,7 @@ The strongest test is not in that table, because it ties the two halves of the p
 
 ![The packet splitting, and the transmitted fraction against the spectral prediction](docs/img/packet_split.png)
 
-**Propagate the packet, then integrate.** Run Ψ(x,t) forward until the reflected and transmitted lobes have fully separated, integrate |Ψ|² over x > a, and compare with what the stationary theory predicts — the T-weighted average over the packet's own spectrum, $\langle T\rangle_\phi = \int |\phi(k)|^2 T(E_k)\,dk \big/ \int |\phi(k)|^2 dk$:
+**Propagate the packet, then integrate.** Run Ψ(x,t) forward until the reflected and transmitted lobes have fully separated, integrate |Ψ|² over x > a, and compare with what the stationary theory predicts — the T-weighted average over the packet's own spectrum, $\langle T\rangle_\phi = \int |\phi(k)|^2 T(E_k) dk / \int |\phi(k)|^2 dk$:
 
 | | |
 |---|---|
@@ -91,7 +91,7 @@ The last animations in the video vary the barrier width to look for the Hartman 
 
 ![Phase time saturates while the classical traversal time does not](docs/img/hartman.png)
 
-For E = 4 below V₀ = 8, the Wigner phase time $\tau_\phi = \hbar\,\mathrm{d}\arg t/\mathrm{d}E$ saturates at **0.2500** — exactly the analytic limit 2/(vκ) — while the classical traversal time a/v grows without bound. Meanwhile T falls from 1.4 × 10⁻² at a = 1 to 1.1 × 10⁻²⁴ at a = 10, which is precisely why the effect is invisible on screen: **the delay stops growing and the amplitude collapses at the same time.**
+For E = 4 below V₀ = 8, the Wigner phase time $\tau_\phi = \hbar \, d(\arg t)/dE$ saturates at **0.2500** — exactly the analytic limit 2/(vκ) — while the classical traversal time a/v grows without bound. Meanwhile T falls from 1.4 × 10⁻² at a = 1 to 1.1 × 10⁻²⁴ at a = 10, which is precisely why the effect is invisible on screen: **the delay stops growing and the amplitude collapses at the same time.**
 
 Dividing width by delay gives an "apparent velocity" that grows without limit, which is what made the effect notorious. The resolution the report follows is Winful's: the saturating quantity is not a transit time at all but a **dwell time** — how long probability lingers in the barrier — plus a self-interference term. Nothing propagates faster than it should; what saturates is the stored probability, which stops growing once the evanescent wave has decayed inside the barrier.
 
