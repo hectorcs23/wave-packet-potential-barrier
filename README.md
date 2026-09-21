@@ -29,8 +29,6 @@ T = \left[1 + \frac{(k^2+\kappa^2)^2}{4k^2\kappa^2}\sinh^2(\kappa a)\right]^{-1}
 T = \left[1 + \frac{(k^2-q^2)^2}{4k^2q^2}\sin^2(q a)\right]^{-1} \; (E>V_0)
 ```
 
-![Transmission and reflection, and the stationary states](docs/img/coefficients.png)
-
 Below the barrier the wave decays exponentially inside it and leaks out with small amplitude. Above it, transmission is *not* one: the two edges act like a Fabry–Pérot cavity, so T oscillates and reaches 1 exactly at the resonances $qa = n\pi$. A packet with mean energy well above the barrier still leaves a reflected lobe behind:
 
 ![A packet with mean energy above the barrier](media/above_barrier.gif)
@@ -67,8 +65,6 @@ The integral is then evaluated as a Riemann sum over 10,000 values of k, and Man
 
 The strongest test is not in that table, because it ties the two halves of the project together.
 
-![The packet splitting, and the transmitted fraction against the spectral prediction](docs/img/packet_split.png)
-
 **Propagate the packet, then integrate.** Run Ψ(x,t) forward until the reflected and transmitted lobes have fully separated, integrate |Ψ|² over x > a, and compare with what the stationary theory predicts — the T-weighted average over the packet's own spectrum, $\langle T\rangle_\phi = \int |\phi(k)|^2 T(E_k) dk / \int |\phi(k)|^2 dk$:
 
 | | |
@@ -88,8 +84,6 @@ The reason is that transmission is wildly non-linear in energy, so the average o
 ### The Hartman effect
 
 The last animations in the video vary the barrier width to look for the Hartman effect: the tunneling delay stops growing once the barrier is thick. The report notes, honestly, that it is hard to *see* — as the barrier widens the transmitted packet becomes too faint to follow. The phase time makes it quantitative instead.
-
-![Phase time saturates while the classical traversal time does not](docs/img/hartman.png)
 
 For E = 4 below V₀ = 8, the Wigner phase time $\tau_\phi = \hbar \, d(\arg t)/dE$ saturates at **0.2500** — exactly the analytic limit 2/(vκ) — while the classical traversal time a/v grows without bound. Meanwhile T falls from 1.4 × 10⁻² at a = 1 to 1.1 × 10⁻²⁴ at a = 10, which is precisely why the effect is invisible on screen: **the delay stops growing and the amplitude collapses at the same time.**
 
