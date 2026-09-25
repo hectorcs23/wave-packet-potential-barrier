@@ -140,93 +140,90 @@ def main():
             fh.write(f"{k_}\t{v_}\n")
 
     # ================================================================ figures
-    # --- 1. coefficients and stationary states
-    fig, ax = plt.subplots(1, 2, figsize=(12.6, 4.4))
+    # --- 1. transmission and reflection coefficients
     E_grid = ks ** 2 / 2
     m = E_grid < 25
-    ax[0].plot(E_grid[m], T[m], color="#2a6fdb", lw=2, label="T(E)")
-    ax[0].plot(E_grid[m], R[m], color="#d9534f", lw=1.6, label="R(E)")
-    ax[0].plot(E_grid[m], (T + R)[m], ":", color="#2e9e5b", lw=1.4, label="T + R")
-    ax[0].axvline(V0, color="#333", ls="--", lw=1)
-    ax[0].text(V0 + 0.3, 0.55, "$V_0$", fontsize=11)
-    ax[0].set_xlabel("E"); ax[0].set_ylabel("probability")
-    ax[0].set_ylim(-0.03, 1.08)
-    ax[0].set_title("Below $V_0$ it tunnels; above it resonates",
-                    loc="left", fontweight="bold", fontsize=12)
-    ax[0].legend(fontsize=9)
+    plt.figure()
+    plt.plot(E_grid[m], T[m], label="T(E)")
+    plt.plot(E_grid[m], R[m], label="R(E)")
+    plt.plot(E_grid[m], (T + R)[m], label="T + R")
+    plt.plot([V0, V0], [0, 1], "k--", label="$V_0$")
+    plt.xlabel("E")
+    plt.ylabel("Probability")
+    plt.title(f"Transmission and reflection, $V_0$ = {V0:.0f}, a = {A:.0f}")
+    plt.legend()
+    plt.savefig(FIGS / "coefficients.png")
 
+    # --- 2. stationary states either side of the barrier
     xs_s = np.linspace(-6, 10, 3000)
-    for E, color, ls in ((4.0, "#d9534f", "-"), (12.0, "#2a6fdb", "-")):
+    plt.figure()
+    top = 0.0
+    for E in (4.0, 12.0):
         k = np.sqrt(2 * E)
-        psi = bar.psi_matrix(xs_s, [k], V0, A)[:, 0]
-        ax[1].plot(xs_s, np.abs(psi) ** 2, color=color, ls=ls, lw=1.6,
-                   label=f"E = {E:.0f}   T = {bar.transmission([k], V0, A)[0]:.3g}")
-    ax[1].axvspan(0, A, color="#9aa4b1", alpha=.25, lw=0)
-    ax[1].text(A / 2, ax[1].get_ylim()[1] * 0.92, "barrier", ha="center", fontsize=9, color="#555")
-    ax[1].set_xlabel("x"); ax[1].set_ylabel(r"$|\psi_k(x)|^2$")
-    ax[1].set_title("Stationary states either side of the barrier",
-                    loc="left", fontweight="bold", fontsize=12)
-    ax[1].legend(fontsize=9)
-    for a_ in ax:
-        a_.spines[["top", "right"]].set_visible(False)
-        a_.grid(alpha=.25)
-    fig.tight_layout()
-    fig.savefig(FIGS / "coefficients.png", dpi=130)
+        dens = np.abs(bar.psi_matrix(xs_s, [k], V0, A)[:, 0]) ** 2
+        top = max(top, dens.max())
+        plt.plot(xs_s, dens,
+                 label=f"E = {E:.0f}, T = {bar.transmission([k], V0, A)[0]:.3g}")
+    plt.plot([0, 0], [0, top], "k--", label="Barrier edges")
+    plt.plot([A, A], [0, top], "k--")
+    plt.xlabel("x")
+    plt.ylabel(r"$|\psi_k(x)|^2$")
+    plt.title("Stationary states below and above the barrier")
+    plt.legend()
+    plt.savefig(FIGS / "stationary_states.png")
 
-    # --- 2. the packet splitting
-    fig2, ax2 = plt.subplots(1, 2, figsize=(12.6, 4.4))
-    for t, color in zip((0, 2.6, 4, 8), ("#9aa4b1", "#e0a100", "#2e9e5b", "#2a6fdb")):
-        ax2[0].plot(pk.xs, pk.density(t), color=color, lw=1.5, label=f"t = {t}")
-    ax2[0].axvspan(0, A, color="#d9534f", alpha=.25, lw=0)
-    ax2[0].set_xlim(-32, 32)
-    ax2[0].set_xlabel("x"); ax2[0].set_ylabel(r"$|\Psi(x,t)|^2$")
-    ax2[0].set_title(r"The packet splits at the barrier",
-                     loc="left", fontweight="bold", fontsize=12)
-    ax2[0].legend(fontsize=9)
+    # --- 3. the packet splitting
+    plt.figure()
+    top = 0.0
+    for t in (0, 2.6, 4, 8):
+        dens = pk.density(t)
+        top = max(top, dens.max())
+        plt.plot(pk.xs, dens, label=f"t = {t}")
+    plt.plot([0, 0], [0, top], "k--", label="Barrier edges")
+    plt.plot([A, A], [0, top], "k--")
+    plt.xlim(-32, 32)
+    plt.xlabel("x")
+    plt.ylabel(r"$|\Psi(x,t)|^2$")
+    plt.title("The packet splits at the barrier")
+    plt.legend()
+    plt.savefig(FIGS / "packet_split.png")
 
+    # --- 4. reflected / transmitted fractions vs time
     ts = np.linspace(0, 16, 60)
     splits = np.array([pk.split(t) for t in ts])
-    ax2[1].plot(ts, splits[:, 0], color="#d9534f", lw=1.8, label="reflected (x < 0)")
-    ax2[1].plot(ts, splits[:, 2], color="#2a6fdb", lw=1.8, label="transmitted (x > a)")
-    ax2[1].plot(ts, splits[:, 1], color="#9aa4b1", lw=1.4, label="inside the barrier")
-    ax2[1].axhline(T_spec, color="#2a6fdb", ls="--", lw=1)
-    ax2[1].text(11.2, T_spec + 0.035, rf"$\langle T\rangle_\phi$ = {T_spec:.4f}",
-                color="#2a6fdb", fontsize=9.5)
-    ax2[1].axhline(report["T_at_mean_energy"], color="#333", ls=":", lw=1)
-    ax2[1].text(0.4, report["T_at_mean_energy"] + 0.035,
-                rf"$T(\langle E\rangle)$ = {report['T_at_mean_energy']:.4f}",
-                color="#333", fontsize=9.5)
-    ax2[1].set_xlabel("t"); ax2[1].set_ylabel("probability")
-    ax2[1].set_ylim(-0.03, 1.05)
-    ax2[1].set_title("Set by the spectrum, not the mean energy",
-                     loc="left", fontweight="bold", fontsize=12)
-    ax2[1].legend(fontsize=9, loc="center right")
-    for a_ in ax2:
-        a_.spines[["top", "right"]].set_visible(False)
-        a_.grid(alpha=.25)
-    fig2.tight_layout()
-    fig2.savefig(FIGS / "packet_split.png", dpi=130)
+    plt.figure()
+    plt.plot(ts, splits[:, 0], label="Reflected (x < 0)")
+    plt.plot(ts, splits[:, 2], label="Transmitted (x > a)")
+    plt.plot(ts, splits[:, 1], label="Inside the barrier")
+    plt.plot([ts[0], ts[-1]], [T_spec, T_spec], "k--",
+             label=rf"$\langle T\rangle_\phi$ = {T_spec:.4f}")
+    plt.plot([ts[0], ts[-1]], [report["T_at_mean_energy"]] * 2, "k:",
+             label=rf"$T(\langle E\rangle)$ = {report['T_at_mean_energy']:.4f}")
+    plt.xlabel("t")
+    plt.ylabel("Probability")
+    plt.title("Transmitted fraction is set by the spectrum")
+    plt.legend()
+    plt.savefig(FIGS / "packet_fractions.png")
 
-    # --- 3. Hartman
-    fig3, ax3 = plt.subplots(figsize=(6.8, 4.5))
-    ax3.plot(widths, taus, color="#2a6fdb", lw=2, label=r"phase time $\tau_\phi$")
-    ax3.plot(widths, widths / k_tun, "--", color="#d9534f", lw=1.6,
-             label=r"classical $a/v$")
-    ax3.axhline(asym, color="#2e9e5b", ls=":", lw=1.4,
-                label=rf"$2/(v\kappa)$ = {asym:.3f}")
-    ax3.set_xlabel("barrier width a")
-    ax3.set_ylabel("time")
-    ax3.set_title(f"Hartman effect at E = {E_tun:.0f} < $V_0$ = {V0:.0f}",
-                  loc="left", fontweight="bold", fontsize=12)
-    ax3.legend(fontsize=9, loc="upper left")
-    ax3.spines[["top", "right"]].set_visible(False)
-    ax3.grid(alpha=.25)
-    ax3b = ax3.twinx()
-    ax3b.semilogy(widths, Ts, color="#9aa4b1", lw=1.3)
-    ax3b.set_ylabel("T (grey, log scale)", color="#777")
-    ax3b.tick_params(axis="y", colors="#777")
-    fig3.tight_layout()
-    fig3.savefig(FIGS / "hartman.png", dpi=130)
+    # --- 5. Hartman effect
+    plt.figure()
+    plt.plot(widths, taus, label=r"Phase time $\tau_\phi$")
+    plt.plot(widths, widths / k_tun, label="Classical a/v")
+    plt.plot([widths[0], widths[-1]], [asym, asym], "k--",
+             label=rf"$2/(v\kappa)$ = {asym:.3f}")
+    plt.xlabel("Barrier width a")
+    plt.ylabel("Time")
+    plt.title(f"Hartman effect at E = {E_tun:.0f} < $V_0$ = {V0:.0f}")
+    plt.legend()
+    plt.savefig(FIGS / "hartman.png")
+
+    # --- 6. transmission vs barrier width
+    plt.figure()
+    plt.semilogy(widths, Ts)
+    plt.xlabel("Barrier width a")
+    plt.ylabel("Transmission T")
+    plt.title(f"Tunnelling probability vs barrier width, E = {E_tun:.0f}")
+    plt.savefig(FIGS / "hartman_transmission.png")
 
     np.savetxt(RESULTS / "hartman_phase_time.csv",
                np.column_stack([widths, taus, widths / k_tun, Ts]),
@@ -235,7 +232,7 @@ def main():
                np.column_stack([ts, splits]), delimiter=",",
                header="t,reflected,inside,transmitted", comments="")
 
-    print(f"\nwrote {RESULTS}/ and {FIGS}/coefficients.png, packet_split.png, hartman.png")
+    print(f"\nwrote {RESULTS}/ and the six figures in {FIGS}/")
 
 
 if __name__ == "__main__":
